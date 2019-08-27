@@ -1,10 +1,9 @@
-
 # read CoMPASS .csv file into root
 # ussage: python pyreadcsvNew.py -i *.csv
 # J.H 20 Feb, 2019
 # fill all the events in one TTree file; 
 # fill waveforms into divided dump files (root file has a limit number to save TH1F)
-
+# Ref: USER MANUAL UM5960 CoMPASS, www.caen.it
 import ROOT
 import sys, os, getopt
 from ROOT import TTree, TFile, TH1F, AddressOf
@@ -13,7 +12,7 @@ import csv
 from array import array
 path = os.getcwd()
 file_list = os.listdir(path)
-# trigger labels
+# trigger flag labels
 '''
 especially: 16384 -- fine time stamp event, 32768 -- piled-up 
 
