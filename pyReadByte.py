@@ -50,7 +50,7 @@ especially: 16384 -- fine time stamp event, 32768 -- piled-up
 def process_bin(inputfile):
    fname = inputfile.split('.')[0]
    print "now processing ", fname, "it will take minutes!"
-   ff = TFile("data_"+filename+".root","recreate")
+   ff = TFile("data_"+fname+".root","recreate")
    evtID = array('L',[0]) #unsigned int
    timeStamp = array('d',[0]) #unsigned double 
    energy = array('I',[0])
@@ -95,11 +95,11 @@ def main(argv):
   try:
     opts, args = getopt.getopt(argv,"hi:",["ifile="])
   except getopt.GetoptError:
-    print 'pyReadByte.py -i <inputfile>'
+    print 'python pyReadByte.py -i <inputfile>'
     sys.exit(2)
   for opt, arg in opts:
     if opt == '-h':
-      print 'pyReadByte.py -i <inputfile>'
+      print 'python pyReadByte.py -i <inputfile>'
       sys.exit()
     elif opt in ("-i", "--ifile"):
       inputfile = arg
