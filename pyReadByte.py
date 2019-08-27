@@ -62,15 +62,26 @@ def process_bin(inputfile):
    tree.Branch("energy", energy, "energy/s")
    tree.Branch("energyShort", energyShort, "energyShort/s")
    tree.Branch("flag", flag, "flag/s")
-
+   
+   totalEvt = 0
+   waveformdata = []
+   boardNumber = 0 # default
+   channelNumber = 0 # default
+   histosize = 252 # ns, the length of timing waveform, default
    with open(inputfile, "rb") as binfile :
      size = ushort*2+uQ+ushort*2+uint+uint
      countDataChunk = 0
+     flagBegin = 1
      while True:
        chunk1 = binfile.read(size)
-       if not chunk1: break # if board information is recorded, timing histogram should be there
+       if not chunk1: 
+           break # if board information is recorded, timing histogram should be there
        board, channel, time0, elong0, eshort0, flag0, nSample = struct.unpack('<HHqHHII', chunk1)  # "<" for big-endian, CAEN uses inverted format
+       if flagBegin: # for the board information, only need to check one event and assume the remainings are same
+           print "Checking... board number:", board, "channel:",channel, "waveform length [ns]:", nSample
+       flagBegin = 0
        hist = [struct.unpack('H', binfile.read(2))[0] for i in range(nSample)] # loop timing histogram
+       waveformdata.append(hist)
        #print board, channel, time, flag, nSample
        #print hist
        evtID[0] = countDataChunk 
@@ -80,15 +91,39 @@ def process_bin(inputfile):
        flag[0] = flag0
        tree.Fill()
        countDataChunk = countDataChunk+1
-  
-   
+   totalEvt = countDataChunk
+   print "total entries: ", countDataChunk 
    ff.cd()
    tree.Write()
    ff.Close()
-   lineNum = 0 # eventID == line number in data 
+
+   # dump waveforms into several .root files, each contains up to 20000 events
    fN = 0# file number
    linedivide = 20000
-
+   divide = totalEvt/10000+1
+   lineNum1 = 0
+   for fN in range(divide):
+     print 'process file '+str(fN)
+     f = TFile("dumpWaveform_"+fname+"_"+str(fN)+".root","recreate")
+     lineNum1 = 0 + fN*linedivide
+     if fN<divide-1:
+       data_divide = waveformdata[lineNum1:lineNum1 + linedivide]
+     else:
+       data_divide = waveformdata[lineNum1:]
+     for entry in data_divide:
+       #print evtID, timeStamp, energy,energyShort,flag, waveformdata
+       hwaveform = TH1F("hwf","",histosize-1,0,histosize)
+       hwaveform.SetName("hwf"+str(lineNum1))
+       # fill waveform
+       ibin=0
+       for idata in entry:
+         hwaveform.SetBinContent(ibin+1,idata)
+         ibin = ibin+1
+       lineNum1 = lineNum1+1
+       f.cd()
+       hwaveform.Write()
+       #hwaveform.BufferEmpty()
+   f.Close()
 
 def main(argv):
   inputfile = ''
