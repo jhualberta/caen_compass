@@ -1,4 +1,4 @@
-# 05 July 2019 : Jie Hu 
+# 25 July 2019 : Jie Hu 
 # convert .bin data file to .root file
 # translate CoMPASS data structure to ROOT tree
 # ussage: python pyreadcsvNew.py -i *.csv
