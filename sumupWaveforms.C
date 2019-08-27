@@ -30,12 +30,20 @@ int delayW = 1; // 1 ns for DT5751
 
 void sumupWaveforms() {
 
-   TString sample = "labPPO_137Cs_2PMTcoin_csv_5Apr";
-   TString chN = "_ch0_";
-   TFile *fdataCh0 = new TFile("data"+chN+sample+".root");
+   TString sampleName;
+   string sample;
+   std::cout<<"Which sample are you checking? eg. LU151_UA-8_bin_attenu_Coin_16July"<<std::endl;
+   std::cin>>sample;
+   TString sampleName(sample);
+   string chan;
+   std::cout<<"Which channel are you checking? [0,1,2,3]"<<std::endl;
+   std::cin>>chan;
+   TString chann(chan);
+   TString chN = "_ch"+chann+"_";
+   std::cout<<"Great, now process sample: "<<sampleName<<", channel "<<chan<<std::endl;
+   TFile *fdataCh0 = new TFile("data"+chN+sampleName+".root");
 
    TTree *t1 = (TTree*)fdataCh0->Get("T");
- 
    int evtNumCh0 = t1->GetEntries();
 
    int linedivide = 20000; // number of divided waveforms files
@@ -48,9 +56,9 @@ void sumupWaveforms() {
 
    Double_t tag1 = 0, tag2 = 0;
    UShort_t fg1 = 0, fg2 = 0;
-   TFile *f1 = new TFile("sumup"+chN+"rmSaturate_"+sample+".root","recreate");
+   TFile *f1 = new TFile("sumup"+chN+"rmSaturate_"+sampleName+".root","recreate");
 
-   TFile *f00 = new TFile("dumpWaveform"+chN+sample+"_0.root","read");
+   TFile *f00 = new TFile("dumpWaveform"+chN+sampleName+"_0.root","read");
    TH1F *hsumup = (TH1F*)f00->Get("hwf0");
 
    int totalEvt0 = t1->GetEntries();
@@ -59,7 +67,7 @@ void sumupWaveforms() {
    for(int ifile = 0; ifile<dividefile; ifile++) // loop on files
    {
      TString ifN; ifN.Form("%d",ifile);
-     TFile *fs1 = new TFile("dumpWaveform"+chN+sample+"_"+ifN+".root","read");
+     TFile *fs1 = new TFile("dumpWaveform"+chN+sampleName+"_"+ifN+".root","read");
 
      linestart = ifile*linedivide;
 
